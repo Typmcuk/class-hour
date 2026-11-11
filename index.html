@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Классный час</title>
+<style>
+:root{color-scheme:light;--bg:#f5f7fb;--card:#fff;--tx:#1f2937;--mut:#6b7280;--ac:#4f6df5;--ac2:#eef1ff;--ok:#16a34a;--bad:#dc2626;--bd:#e4e8f1;--sh:0 2px 12px rgba(31,41,55,.06)}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.55 system-ui,"Segoe UI",Roboto,Arial,sans-serif;background:linear-gradient(180deg,#eaf0ff 0,var(--bg) 260px) no-repeat,var(--bg);color:var(--tx);min-height:100vh}
+header{background:#fff;color:var(--tx);padding:12px 22px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--bd);box-shadow:var(--sh);position:sticky;top:0;z-index:5}
+header b{font-size:20px;color:var(--ac);letter-spacing:.2px}
+#who{font-size:14px;color:var(--mut)}
+main{max-width:820px;margin:22px auto;padding:0 14px}
+h2{margin:.6em 0 .4em}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;margin:12px 0;box-shadow:var(--sh)}
+.card.row{transition:transform .15s,box-shadow .15s}
+.card.row:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(79,109,245,.12)}
+label{display:block;margin:10px 0;font-weight:600;font-size:14px}
+input,textarea,select{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;font:inherit;background:#fff;color:var(--tx);margin-top:4px;outline:none;transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus,select:focus{border-color:var(--ac);box-shadow:0 0 0 3px #4f6df522}
+input[type=radio],input[type=checkbox]{width:auto;margin:0 8px 0 0;box-shadow:none;accent-color:var(--ac)}
+button{background:var(--ac);color:#fff;border:1px solid var(--ac);border-radius:10px;padding:10px 16px;font:inherit;font-weight:500;cursor:pointer;margin:4px 4px 4px 0;transition:filter .15s}
+button:hover{filter:brightness(1.07)}
+button.s{background:#fff;color:var(--ac);border:1px solid #c9d2fb}
+button.s:hover{background:var(--ac2);filter:none}
+button.d{background:#fff;color:var(--bad);border:1px solid #f3c2c2}
+button.d:hover{background:#fdecec;filter:none}
+header button{background:var(--ac2);color:var(--ac);border:0;margin:0 0 0 8px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.tabs{display:flex;gap:6px;margin-bottom:12px;background:var(--ac2);padding:4px;border-radius:12px}
+.tabs button{flex:1;margin:0;border:0}
+.tabs button.s{background:transparent;color:var(--ac)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.mut{color:var(--mut);font-size:14px}.err{color:var(--bad);margin:8px 0}.lec{white-space:pre-wrap}
+.opt{display:flex;align-items:center;padding:8px 12px;border:1px solid var(--bd);border-radius:10px;margin:6px 0;cursor:pointer;background:#fff}
+.opt:hover{background:#f8f9ff}
+.opt.ok{border-color:var(--ok);background:#16a34a1a}.opt.no{border-color:var(--bad);background:#dc26261a}
+.vid{position:relative;padding-top:56.25%;margin:12px 0}.vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:9px 8px;border-bottom:1px solid var(--bd);text-align:left}
+th{background:#f8f9fd;color:var(--mut);font-weight:600}
+.tw{overflow-x:auto}.warn{background:#fff7d6;color:#5f3b00;padding:10px 12px;border-radius:10px;margin-top:12px}
+.hello{text-align:center;margin:26px 0 6px}.hello h1{margin:0;font-size:26px}.hello p{margin:4px 0 0;color:var(--mut)}
+.badge{display:inline-block;background:var(--ac2);color:var(--ac);font-size:12px;font-weight:600;padding:2px 10px;border-radius:99px;margin-bottom:6px}
+</style>
+</head>
+<body>
+<header><b>🎓 Классный час</b><span id="who"></span></header>
+<main id="app"></main>
+<script>
+// ВСТАВЬТЕ сюда URL веб-приложения Apps Script (оканчивается на /exec)
+const API_URL = 'https://script.google.com/macros/s/AKfycbxDCy0N8Tnnm4nS4M0vyTDIV_LrKEWrqZCdEsX2HPX7XBpYcAyym7gJbCt646jSgMmuAw/exec';
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let S = null; try { S = JSON.parse(localStorage.getItem('ch')); } catch (e) {}
+const save = () => S ? localStorage.setItem('ch', JSON.stringify(S)) : localStorage.removeItem('ch');
+const show = h => { $('#app').innerHTML = h; scrollTo(0, 0); };
+
+async function api(action, data = {}) {
+  if (API_URL.startsWith('PASTE')) return { ok: false, error: 'Не указан API_URL в index.html' };
+  try {
+    const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, token: S && S.token, ...data }) });
+    return await r.json();
+  } catch (e) { return { ok: false, error: 'Нет связи с сервером' }; }
+}
+function head() {
+  $('#who').innerHTML = S ? `${esc(S.user.name)} · ${S.user.role === 'curator' ? 'куратор' : 'студент'} <button onclick="logout()">Выйти</button>` : '';
+}
+function logout() { S = null; save(); head(); auth(); }
+const err = m => $('#err').textContent = m || '';
+
+// ---------- Вход / регистрация ----------
+const isCuratorLink = () => location.hash === '#curator';
+function auth(mode = 'login') {
+  head();
+  const reg = mode === 'reg', role = isCuratorLink() ? 'curator' : 'student';
+  show(`<div class="hello">${role === 'curator' ? '<span class="badge">Для кураторов</span>' : ''}<h1>🎓 Классный час</h1><p>${reg ? (role === 'curator' ? 'Регистрация куратора' : 'Создайте аккаунт студента') : 'Войдите, чтобы продолжить'}</p></div>
+    <div class="card">
+    <div class="tabs"><button class="${reg ? 's' : ''}" onclick="auth('login')">Вход</button><button class="${reg ? '' : 's'}" onclick="auth('reg')">Регистрация</button></div>
+    ${reg ? `<label>ФИО<input id="n" autocomplete="name"></label>
+    ${role === 'student' ? '<label>Группа<input id="g"></label>' : '<label>Код куратора<input id="c" type="password"></label>'}` : ''}
+    <label>Логин<input id="l" autocomplete="username"></label>
+    <label>Пароль<input id="p" type="password" autocomplete="${reg ? 'new-password' : 'current-password'}"></label>
+    <div class="err" id="err"></div>
+    <button id="go" onclick="${reg ? `doReg('${role}')` : 'doLogin()'}">${reg ? 'Зарегистрироваться' : 'Войти'}</button></div>
+    ${API_URL.startsWith('PASTE') ? '<div class="warn">Сайт ещё не подключён к Google Таблице: вставьте URL в API_URL (см. инструкцию).</div>' : ''}`);
+}
+async function finish(r) {
+  if (!r.ok) { err(r.error); $('#go').disabled = false; return; }
+  S = { token: r.token, user: r.user }; save(); home();
+}
+async function doLogin() {
+  $('#go').disabled = true; err('…');
+  finish(await api('login', { login: $('#l').value.trim(), password: $('#p').value }));
+}
+async function doReg(role) {
+  $('#go').disabled = true; err('…');
+  const g = id => ($(id) ? $(id).value.trim() : '');
+  finish(await api('register', { role, name: g('#n'), group: g('#g'), code: g('#c'), login: g('#l'), password: $('#p').value }));
+}
+
+// ---------- Главная ----------
+async function home() {
+  head(); show('<p class="mut">Загрузка…</p>');
+  const r = await api('lectures');
+  if (!r.ok) { if (/войти|устарела/.test(r.error)) return logout(); return show(`<div class="err">${esc(r.error)}</div>`); }
+  const cur = S.user.role === 'curator';
+  show(`<div class="row"><h2>${cur ? 'Лекции' : 'Темы классных часов'}</h2>
+    ${cur ? '<div><button onclick="edit()">+ Новая лекция</button><button onclick="journal()">Журнал</button><button class="s" onclick="results()">Результаты студентов</button><button class="s" onclick="imp()">Загрузить лекции из файла</button></div>' : ''}</div>
+    ${r.lectures.length ? r.lectures.map(l => `<div class="card row"><div><b>${esc(l.topic)}</b><div class="mut">${l.attempts ? (l.total ? `Лучший результат: ${l.best}/${l.total} (попыток: ${l.attempts})` : 'Просмотрено ✅') : cur ? (l.total ? '' : 'Тест не добавлен') : 'Не пройдено'}</div></div>
+      <div><button onclick="${cur ? `edit('${l.id}')` : `open_('${l.id}')`}">${cur ? 'Изменить' : 'Открыть'}</button>${cur ? `<button class="d" onclick="del('${l.id}')">Удалить</button>` : ''}</div></div>`).join('') : '<p class="mut">Лекций пока нет.</p>'}`);
+}
+let JR = null;
+async function journal(g = '') {
+  if (!JR) { JR = await api('journal'); if (!JR.ok) { const e = JR.error; JR = null; return alert(e); } }
+  const groups = [...new Set(JR.students.map(s => s.group))].sort();
+  const st = JR.students.filter(s => !g || s.group === g).sort((a, b) => (a.group + a.name).localeCompare(b.group + b.name, 'ru'));
+  const num = t => (String(t).match(/^\d+/) || [''])[0];
+  const rowsH = st.map(s => {
+    let c = 0;
+    const tds = JR.lectures.map(l => { const d = JR.done[s.id + '|' + l.id]; if (d) c++; return `<td>${d ? (d.total ? d.score + '/' + d.total : '✅') : '—'}</td>`; }).join('');
+    return `<tr><td>${esc(s.name)}</td><td>${esc(s.group)}</td>${tds}<td><b>${c}/${JR.lectures.length}</b></td></tr>`;
+  }).join('') || '<tr><td colspan="4">Студентов пока нет</td></tr>';
+  show(`<button class="s" onclick="JR=null;home()">← Назад</button><h2>Журнал</h2>
+    <div class="row"><label style="margin:0">Группа <select onchange="journal(this.value)"><option value="">Все</option>${groups.map(x => `<option ${x === g ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
+    <button class="s" onclick="const v=document.querySelector('select').value;JR=null;journal(v)">Обновить</button></div>
+    <div class="card tw"><table><tr><th>Студент</th><th>Гр.</th>${JR.lectures.map(l => `<th title="${esc(l.topic)}">${num(l.topic)}</th>`).join('')}<th>Итого</th></tr>${rowsH}</table></div>
+    <p class="mut">В заголовке — номер лекции (наведите курсор, чтобы увидеть тему). ✅ — просмотрено, 12/15 — лучший балл за тест, — не выполнено.</p>`);
+}
+async function imp() {
+  if (!confirm('Загрузить лекции из lectures.json? Уже загруженные будут пропущены.')) return;
+  let L; try { L = await (await fetch('lectures.json')).json(); } catch (e) { return alert('Файл lectures.json не найден рядом с index.html'); }
+  const r = await api('importLectures', { lectures: L });
+  r.ok ? (alert(`Добавлено: ${r.added}, пропущено: ${r.skipped}`), home()) : alert(r.error);
+}
+async function del(id) {
+  if (!confirm('Удалить лекцию?')) return;
+  const r = await api('deleteLecture', { id }); r.ok ? home() : alert(r.error);
+}
+
+// ---------- Куратор: редактор ----------
+async function edit(id) {
+  let l = { questions: [] };
+  if (id) { const r = await api('lecture', { id }); if (!r.ok) return alert(r.error); l = r.lecture; }
+  let h = `<button class="s" onclick="home()">← Назад</button><h2>${id ? 'Изменить' : 'Новая'} лекция</h2>
+  <label>1. Тема<input id="t" value="${esc(l.topic)}"></label>
+  <label>2. Текст лекции<textarea id="x" rows="10">${esc(l.text)}</textarea></label>
+  <label>3. Видео по теме (ссылка YouTube)<input id="v" value="${esc(l.video)}" placeholder="https://youtu.be/..."></label>
+  <h3>4. Тест: 15 вопросов, 4 варианта (отметьте правильный)</h3>`;
+  for (let i = 0; i < 15; i++) {
+    const q = l.questions[i] || { q: '', o: ['', '', '', ''], a: -1 };
+    h += `<div class="card"><b>Вопрос ${i + 1}</b><input class="qq" value="${esc(q.q)}" placeholder="Текст вопроса">` +
+      q.o.map((o, k) => `<div class="opt"><input type="radio" name="c${i}" value="${k}" ${q.a === k ? 'checked' : ''}><input class="oo${i}" value="${esc(o)}" placeholder="Вариант ${k + 1}" style="margin:0"></div>`).join('') + '</div>';
+  }
+  show(h + `<div class="err" id="err"></div><button id="go" onclick="saveL('${id || ''}')">Сохранить лекцию</button>`);
+}
+async function saveL(id) {
+  const qs = [...document.querySelectorAll('.qq')].map((e, i) => {
+    const c = document.querySelector(`input[name=c${i}]:checked`);
+    return { q: e.value.trim(), o: [...document.querySelectorAll('.oo' + i)].map(x => x.value.trim()), a: c ? +c.value : -1 };
+  });
+  $('#go').disabled = true;
+  const r = await api('saveLecture', { lecture: { id, topic: $('#t').value.trim(), text: $('#x').value.trim(), video: $('#v').value.trim(), questions: qs } });
+  if (r.ok) home(); else { err(r.error); $('#go').disabled = false; }
+}
+
+// ---------- Куратор: результаты ----------
+async function results() {
+  const r = await api('results'); if (!r.ok) return alert(r.error);
+  show(`<button class="s" onclick="home()">← Назад</button><h2>Результаты студентов</h2><div class="card tw"><table>
+    <tr><th>Дата</th><th>ФИО</th><th>Группа</th><th>Тема</th><th>Лекция просмотрена</th><th>Балл</th></tr>
+    ${r.results.map(x => `<tr><td>${new Date(x.time).toLocaleString('ru')}</td><td>${esc(x.name)}</td><td>${esc(x.group)}</td><td>${esc(x.topic)}</td><td>${x.watched ? '✅' : '—'}</td><td>${x.total ? x.score + '/' + x.total : 'без теста'}</td></tr>`).join('') || '<tr><td colspan=6>Пока пусто</td></tr>'}</table></div>`);
+}
+
+// ---------- Студент: лекция и тест ----------
+function embed(u) {
+  const m = String(u || '').match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/);
+  if (m) return `<div class="vid"><iframe src="https://www.youtube.com/embed/${m[1]}" allowfullscreen></iframe></div>`;
+  return /^https?:\/\//.test(u) ? `<p><a href="${esc(u)}" target="_blank" rel="noopener">▶ Смотреть видео</a></p>` : '';
+}
+let LEC = null;
+async function open_(id) {
+  const r = await api('lecture', { id }); if (!r.ok) return alert(r.error);
+  LEC = r.lecture;
+  show(`<button class="s" onclick="home()">← Назад</button><div class="card"><h2>${esc(LEC.topic)}</h2>
+    <div class="lec">${esc(LEC.text)}</div>${embed(LEC.video)}</div>
+    <div class="card"><label style="display:flex;align-items:center"><input type="checkbox" id="w" onchange="$('#st').disabled=!this.checked"> Я посмотрел(а) лекцию и видео</label>
+    <button id="st" disabled onclick="test()">${LEC.questions.length ? 'Пройти тест (15 вопросов)' : 'Сохранить отметку о просмотре'}</button></div><div id="tst"></div>`);
+}
+async function test() {
+  if (!LEC.questions.length) {
+    const r = await api('submit', { lectureId: LEC.id, watched: true, answers: [] });
+    $('#st').outerHTML = r.ok ? '<p>✅ Отметка о просмотре сохранена.</p><button onclick="home()">К списку тем</button>' : `<div class="err">${esc(r.error)}</div>`;
+    return;
+  }
+  $('#st').disabled = true; $('#w').disabled = true;
+  $('#tst').innerHTML = LEC.questions.map((q, i) => `<div class="card"><b>${i + 1}. ${esc(q.q)}</b>` +
+    q.o.map((o, k) => `<label class="opt" style="font-weight:400;font-size:16px"><input type="radio" name="a${i}" value="${k}">${esc(o)}</label>`).join('') + '</div>').join('') +
+    '<div class="err" id="err"></div><button id="go" onclick="submit_()">Отправить ответы</button>';
+  $('#tst').scrollIntoView();
+}
+async function submit_() {
+  const ans = LEC.questions.map((_, i) => { const c = document.querySelector(`input[name=a${i}]:checked`); return c ? +c.value : -1; });
+  if (ans.includes(-1) && !confirm('Есть вопросы без ответа. Отправить всё равно?')) return;
+  $('#go').disabled = true;
+  const r = await api('submit', { lectureId: LEC.id, watched: true, answers: ans });
+  if (!r.ok) { err(r.error); $('#go').disabled = false; return; }
+  LEC.questions.forEach((_, i) => document.querySelectorAll(`input[name=a${i}]`).forEach(inp => {
+    const k = +inp.value, box = inp.parentElement; inp.disabled = true;
+    if (k === r.correct[i]) box.classList.add('ok'); else if (k === ans[i]) box.classList.add('no');
+  }));
+  $('#go').remove(); $('#err').outerHTML = `<div class="card"><h2>Результат: ${r.score} из ${r.total}</h2><p class="mut">Ответ сохранён. Зелёным отмечены правильные ответы.</p><button onclick="home()">К списку тем</button></div>`;
+}
+
+window.addEventListener('hashchange', () => { if (!S) auth(isCuratorLink() ? 'reg' : 'login'); });
+S ? home() : auth(isCuratorLink() ? 'reg' : 'login');
+</script>
+</body>
+</html>
