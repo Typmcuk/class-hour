@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Классный час</title>
+<style>
+:root{color-scheme:light;--bg:#f3f7fa;--card:#fff;--tx:#16222c;--mut:#5d6b78;--ac:#0b7a99;--ac2:#e3f2f7;--gold:#f2b705;--ok:#1f9d6b;--bad:#c62f2f;--bd:#dbe4ea}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.6 system-ui,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+header{background:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-top:4px solid var(--ac);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:5}
+header b{font-size:19px;font-weight:700;letter-spacing:-.01em}
+#who{font-size:14px;color:var(--mut)}
+main{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+h2{margin:1.1em 0 .5em;font-size:22px;line-height:1.25;letter-spacing:-.01em}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:20px;margin:14px 0}
+.card.row{border-radius:0;border-width:0 0 1px;margin:0;padding:14px 4px;background:transparent}
+.card.row:hover{background:var(--ac2)}
+label{display:block;margin:12px 0;font-weight:600;font-size:14px}
+input,textarea,select{width:100%;padding:10px 12px;border:1px solid #c4d1da;border-radius:8px;font:inherit;background:#fff;color:var(--tx);margin-top:4px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--ac);box-shadow:0 0 0 3px #0b7a9930}
+input[type=radio],input[type=checkbox]{width:auto;margin:0 10px 0 0;accent-color:var(--ac)}
+button{background:var(--ac);color:#fff;border:1px solid var(--ac);border-radius:8px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer;margin:4px 6px 4px 0}
+button:hover{background:#09667f}
+button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+button.s{background:#fff;color:var(--ac);border-color:#b7cfd9}
+button.s:hover{background:var(--ac2)}
+button.d{background:#fff;color:var(--bad);border-color:#e7b9b9}
+button.d:hover{background:#fdeeee}
+header button{background:transparent;color:var(--ac);border-color:#b7cfd9;margin:0 0 0 8px;padding:6px 12px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.tabs{display:flex;border-bottom:1px solid var(--bd);margin:-4px 0 14px}
+.tabs button{flex:1;margin:0;border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;color:var(--tx);padding:10px 8px}
+.tabs button.s{color:var(--mut);font-weight:500}
+.tabs button:not(.s){border-bottom-color:var(--gold)}
+.tabs button:hover{background:var(--ac2)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.mut{color:var(--mut);font-size:14px}.err{color:var(--bad);margin:8px 0}
+.lec{white-space:pre-wrap;line-height:1.75;max-width:68ch}
+.opt{display:flex;align-items:center;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;margin:8px 0;cursor:pointer;background:#fff}
+.opt:hover{background:#f6fafc}
+.opt:has(input:checked){border-color:var(--ac);background:var(--ac2)}
+.opt.ok{border-color:var(--ok);background:#1f9d6b1f}.opt.no{border-color:var(--bad);background:#c62f2f1a}
+.vid{position:relative;padding-top:56.25%;margin:16px 0;background:#0e1a22;border-radius:12px;overflow:hidden}.vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:9px 8px;border-bottom:1px solid var(--bd);text-align:left}
+th{background:#f3f7fa;color:var(--mut);font-weight:600}
+.tw{overflow-x:auto}.warn{background:#fff6d6;color:#5f4300;padding:10px 12px;border-radius:8px;margin-top:12px;border-left:4px solid var(--gold)}
+.hello{margin:28px 0 8px}.hello h1{margin:0;font-size:28px;letter-spacing:-.02em}.hello p{margin:4px 0 0;color:var(--mut)}
+.badge{display:inline-block;background:var(--ac2);color:var(--ac);font-size:13px;font-weight:600;padding:2px 10px;border-radius:6px;margin-bottom:8px}
+@media(max-width:520px){main{padding:14px 10px 40px}.card{padding:16px}h2{font-size:20px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><b>🎓 Классный час</b><span id="who"></span></header>
+<main id="app"></main>
+<script>
+// ВСТАВЬТЕ сюда URL веб-приложения Apps Script (оканчивается на /exec)
+const API_URL = 'https://script.google.com/macros/s/AKfycbxDCy0N8Tnnm4nS4M0vyTDIV_LrKEWrqZCdEsX2HPX7XBpYcAyym7gJbCt646jSgMmuAw/exec';
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let S = null; try { S = JSON.parse(localStorage.getItem('ch')); } catch (e) {}
+const save = () => S ? localStorage.setItem('ch', JSON.stringify(S)) : localStorage.removeItem('ch');
+const show = h => { $('#app').innerHTML = h; scrollTo(0, 0); };
+
+async function api(action, data = {}) {
+  if (API_URL.startsWith('PASTE')) return { ok: false, error: 'Не указан API_URL в index.html' };
+  try {
+    const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, token: S && S.token, ...data }) });
+    return await r.json();
+  } catch (e) { return { ok: false, error: 'Нет связи с сервером' }; }
+}
+function head() {
+  $('#who').innerHTML = S ? `${esc(S.user.name)} · ${S.user.role === 'curator' ? 'куратор' : 'студент'}${S.user.group ? ', группа ' + esc(S.user.group) : ''} <button onclick="logout()">Выйти</button>` : '';
+}
+function logout() { S = null; save(); head(); auth(); }
+const err = m => $('#err').textContent = m || '';
+
+// ---------- Вход / регистрация ----------
+const isCuratorLink = () => location.hash === '#curator';
+function auth(mode = 'login') {
+  head();
+  const reg = mode === 'reg', role = isCuratorLink() ? 'curator' : 'student';
+  show(`<div class="hello">${role === 'curator' ? '<span class="badge">Для кураторов</span>' : ''}<h1>🎓 Классный час</h1><p>${reg ? (role === 'curator' ? 'Регистрация куратора' : 'Создайте аккаунт студента') : 'Войдите, чтобы продолжить'}</p></div>
+    <div class="card">
+    <div class="tabs"><button class="${reg ? 's' : ''}" onclick="auth('login')">Вход</button><button class="${reg ? '' : 's'}" onclick="auth('reg')">Регистрация</button></div>
+    ${reg ? `<label>ФИО<input id="n" autocomplete="name"></label>
+    <label>${role === 'curator' ? 'Ваша группа (её студентов вы будете видеть)' : 'Группа'}<input id="g" placeholder="например, 301"></label>
+    ${role === 'curator' ? '<label>Код куратора<input id="c" type="password"></label>' : ''}` : ''}
+    <label>Логин<input id="l" autocomplete="username"></label>
+    <label>Пароль<input id="p" type="password" autocomplete="${reg ? 'new-password' : 'current-password'}"></label>
+    <div class="err" id="err"></div>
+    <button id="go" onclick="${reg ? `doReg('${role}')` : 'doLogin()'}">${reg ? 'Зарегистрироваться' : 'Войти'}</button></div>
+    ${API_URL.startsWith('PASTE') ? '<div class="warn">Сайт ещё не подключён к Google Таблице: вставьте URL в API_URL (см. инструкцию).</div>' : ''}`);
+}
+async function finish(r) {
+  if (!r.ok) { err(r.error); $('#go').disabled = false; return; }
+  S = { token: r.token, user: r.user }; save(); home();
+}
+async function doLogin() {
+  $('#go').disabled = true; err('…');
+  finish(await api('login', { login: $('#l').value.trim(), password: $('#p').value }));
+}
+async function doReg(role) {
+  $('#go').disabled = true; err('…');
+  const g = id => ($(id) ? $(id).value.trim() : '');
+  finish(await api('register', { role, name: g('#n'), group: g('#g'), code: g('#c'), login: g('#l'), password: $('#p').value }));
+}
+
+// ---------- Главная ----------
+async function home() {
+  head(); show('<p class="mut">Загрузка…</p>');
+  const r = await api('lectures');
+  if (!r.ok) { if (/войти|устарела/.test(r.error)) return logout(); return show(`<div class="err">${esc(r.error)}</div>`); }
+  const cur = S.user.role === 'curator';
+  show(`<div class="row"><h2>${cur ? 'Лекции' : 'Темы классных часов'}${S.user.group ? ' · группа ' + esc(S.user.group) : ''}</h2>
+    ${cur ? '<div><button onclick="edit()">+ Новая лекция</button><button onclick="journal()">Журнал</button><button class="s" onclick="results()">Результаты студентов</button><button class="s" onclick="imp()">Загрузить лекции из файла</button><button class="d" onclick="delAll()">Удалить все лекции</button></div>' : ''}</div>
+    ${r.lectures.length ? r.lectures.map(l => `<div class="card row"><div><b>${esc(l.topic)}</b><div class="mut">${l.attempts ? (l.total ? `Лучший результат: ${l.best}/${l.total} (попыток: ${l.attempts})` : 'Просмотрено ✅') : cur ? (l.total ? '' : 'Тест не добавлен') : 'Не пройдено'}</div></div>
+      <div><button onclick="${cur ? `edit('${l.id}')` : `open_('${l.id}')`}">${cur ? 'Изменить' : 'Открыть'}</button>${cur ? `<button class="d" onclick="del('${l.id}')">Удалить</button>` : ''}</div></div>`).join('') : `<p class="mut">${cur ? 'Лекций пока нет. Нажмите «Загрузить лекции из файла» или «+ Новая лекция».' : 'Для вашей группы лекций пока нет.'}</p>`}`);
+}
+let JR = null;
+async function journal(g = '') {
+  if (!JR) { JR = await api('journal'); if (!JR.ok) { const e = JR.error; JR = null; return alert(e); } }
+  const groups = [...new Set(JR.students.map(s => s.group))].sort();
+  const st = JR.students.filter(s => !g || s.group === g).sort((a, b) => (a.group + a.name).localeCompare(b.group + b.name, 'ru'));
+  const num = t => (String(t).match(/^\d+/) || [''])[0];
+  const rowsH = st.map(s => {
+    let c = 0;
+    const tds = JR.lectures.map(l => { const d = JR.done[s.id + '|' + l.id]; if (d) c++; return `<td>${d ? (d.total ? d.score + '/' + d.total : '✅') : '—'}</td>`; }).join('');
+    return `<tr><td>${esc(s.name)}</td><td>${esc(s.group)}</td>${tds}<td><b>${c}/${JR.lectures.length}</b></td><td><button class="d" style="margin:0;padding:4px 10px" onclick="delStudent('${s.id}')">Удалить</button></td></tr>`;
+  }).join('') || '<tr><td colspan="5">Студентов пока нет</td></tr>';
+  show(`<button class="s" onclick="JR=null;home()">← Назад</button><h2>Журнал</h2>
+    <div class="row">${groups.length > 1 ? `<label style="margin:0">Группа <select onchange="journal(this.value)"><option value="">Все</option>${groups.map(x => `<option ${x === g ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></label>` : `<span class="mut">Группа ${esc(S.user.group || groups[0] || '')}</span>`}
+    <button class="s" onclick="const s=document.querySelector('select');const v=s?s.value:'';JR=null;journal(v)">Обновить</button></div>
+    <div class="card tw"><table><tr><th>Студент</th><th>Гр.</th>${JR.lectures.map(l => `<th title="${esc(l.topic)}">${num(l.topic)}</th>`).join('')}<th>Итого</th><th></th></tr>${rowsH}</table></div>
+    <p class="mut">В заголовке — номер лекции (наведите курсор, чтобы увидеть тему). ✅ — просмотрено, 12/15 — лучший балл за тест, — не выполнено.</p>`);
+}
+async function delStudent(id) {
+  const st = JR.students.find(x => x.id === id);
+  if (!confirm('Удалить студента «' + (st ? st.name : '') + '»?\nБудут удалены его аккаунт и все результаты. Это нельзя отменить.')) return;
+  const r = await api('deleteStudent', { id });
+  if (!r.ok) return alert(r.error);
+  const sel = document.querySelector('select'), v = sel ? sel.value : '';
+  JR = null; journal(v);
+}
+async function delAll() {
+  if (!confirm('Удалить ВСЕ лекции' + (S.user.group ? ' группы ' + S.user.group : '') + ' вместе с тестами и видео? Это нельзя отменить.')) return;
+  if ((prompt('Для подтверждения введите слово УДАЛИТЬ') || '').trim().toUpperCase() !== 'УДАЛИТЬ') return alert('Отменено: слово введено неверно.');
+  const r = await api('deleteAllLectures', {});
+  r.ok ? (alert('Удалено лекций: ' + r.deleted), home()) : alert(r.error);
+}
+async function imp() {
+  if (!confirm('Загрузить лекции с тестами из lectures.json в группу ' + (S.user.group || '') + '?\nНовые лекции добавятся. У уже загруженных заполнятся только пустые тест и видео, ваши правки не изменятся.')) return;
+  let L; try { L = await (await fetch('lectures.json')).json(); } catch (e) { return alert('Файл lectures.json не найден рядом с index.html'); }
+  const r = await api('importLectures', { lectures: L });
+  r.ok ? (alert(`Добавлено: ${r.added}, дополнено тестом/видео: ${r.updated}, без изменений: ${r.skipped}`), home()) : alert(r.error);
+}
+async function del(id) {
+  if (!confirm('Удалить лекцию?')) return;
+  const r = await api('deleteLecture', { id }); r.ok ? home() : alert(r.error);
+}
+
+// ---------- Куратор: редактор ----------
+async function edit(id) {
+  let l = { questions: [] };
+  if (id) { const r = await api('lecture', { id }); if (!r.ok) return alert(r.error); l = r.lecture; }
+  let h = `<button class="s" onclick="home()">← Назад</button><h2>${id ? 'Изменить' : 'Новая'} лекция</h2><p class="mut">Лекция будет доступна студентам группы ${esc(S.user.group || '—')}.</p>
+  <label>1. Тема<input id="t" value="${esc(l.topic)}"></label>
+  <label>2. Текст лекции<textarea id="x" rows="10">${esc(l.text)}</textarea></label>
+  <label>3. Видео по теме (ссылка YouTube)<input id="v" value="${esc(l.video)}" placeholder="https://youtu.be/..."></label>
+  <h3>4. Тест: 15 вопросов, 4 варианта (отметьте правильный)</h3>`;
+  for (let i = 0; i < 15; i++) {
+    const q = l.questions[i] || { q: '', o: ['', '', '', ''], a: -1 };
+    h += `<div class="card"><b>Вопрос ${i + 1}</b><input class="qq" value="${esc(q.q)}" placeholder="Текст вопроса">` +
+      q.o.map((o, k) => `<div class="opt"><input type="radio" name="c${i}" value="${k}" ${q.a === k ? 'checked' : ''}><input class="oo${i}" value="${esc(o)}" placeholder="Вариант ${k + 1}" style="margin:0"></div>`).join('') + '</div>';
+  }
+  show(h + `<div class="err" id="err"></div><button id="go" onclick="saveL('${id || ''}')">Сохранить лекцию</button>`);
+}
+async function saveL(id) {
+  const qs = [...document.querySelectorAll('.qq')].map((e, i) => {
+    const c = document.querySelector(`input[name=c${i}]:checked`);
+    return { q: e.value.trim(), o: [...document.querySelectorAll('.oo' + i)].map(x => x.value.trim()), a: c ? +c.value : -1 };
+  });
+  $('#go').disabled = true;
+  const r = await api('saveLecture', { lecture: { id, topic: $('#t').value.trim(), text: $('#x').value.trim(), video: $('#v').value.trim(), questions: qs } });
+  if (r.ok) home(); else { err(r.error); $('#go').disabled = false; }
+}
+
+// ---------- Куратор: результаты ----------
+async function results() {
+  const r = await api('results'); if (!r.ok) return alert(r.error);
+  show(`<button class="s" onclick="home()">← Назад</button><h2>Результаты студентов</h2><div class="card tw"><table>
+    <tr><th>Дата</th><th>ФИО</th><th>Группа</th><th>Тема</th><th>Лекция просмотрена</th><th>Балл</th></tr>
+    ${r.results.map(x => `<tr><td>${new Date(x.time).toLocaleString('ru')}</td><td>${esc(x.name)}</td><td>${esc(x.group)}</td><td>${esc(x.topic)}</td><td>${x.watched ? '✅' : '—'}</td><td>${x.total ? x.score + '/' + x.total : 'без теста'}</td></tr>`).join('') || '<tr><td colspan=6>Пока пусто</td></tr>'}</table></div>`);
+}
+
+// ---------- Студент: лекция и тест ----------
+function embed(u) {
+  const m = String(u || '').match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/);
+  if (m) return `<div class="vid"><iframe src="https://www.youtube.com/embed/${m[1]}" allowfullscreen></iframe></div>`;
+  return /^https?:\/\//.test(u) ? `<p><a href="${esc(u)}" target="_blank" rel="noopener">▶ Смотреть видео</a></p>` : '';
+}
+// ---------- Видео: тест открывается после просмотра не менее 90% ----------
+const NEED = 0.9;
+let VP = null, ytTimer = null, ytApi = null;
+function ytId(u) { const m = String(u || '').match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/); return m ? m[1] : null; }
+function loadYT() {
+  if (ytApi) return ytApi;
+  ytApi = new Promise(res => {
+    if (window.YT && YT.Player) return res();
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => { if (prev) prev(); res(); };
+    const s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(s);
+  });
+  return ytApi;
+}
+const vKey = () => 'wp:' + S.user.id + ':' + LEC.id;
+function vLoad() { try { return +localStorage.getItem(vKey()) || 0; } catch (e) { return 0; } }
+function vSave() { try { localStorage.setItem(vKey(), String(Math.floor(VP.maxT))); } catch (e) {} }
+function vUpdate() {
+  if (!$('#vbar')) return;
+  const frac = VP.dur ? Math.min(1, VP.maxT / VP.dur) : 0;   // прогресс = самая дальняя дошедшая позиция, перемотка вперёд засчитывается
+  VP.pct = Math.floor(frac * 100); VP.ok = frac >= NEED;
+  $('#vbar').style.width = VP.pct + '%';
+  $('#vtxt').textContent = VP.ok ? '✅ Видео просмотрено (' + VP.pct + '%). Можно проходить тест.' : 'Просмотрено: ' + VP.pct + '% (нужно не меньше 90%).';
+  $('#st').disabled = !VP.ok;
+}
+function vTick() {
+  if (!$('#vbar')) { clearInterval(ytTimer); if (VP) vSave(); return; }   // студент ушёл со страницы лекции
+  const p = VP.player; if (!p || !p.getCurrentTime) return;
+  const t = p.getCurrentTime();
+  if (!VP.dur) { const d = p.getDuration(); if (d > 0) VP.dur = Math.ceil(d); }
+  if (VP.dur && t > VP.maxT && t <= VP.dur + 1) VP.maxT = t;
+  VP.last = t;
+  if (++VP.n % 10 === 0) vSave();
+  vUpdate();
+}
+function vFallback() {   // видео не загрузилось во встроенном плеере: запасной вариант с отметкой вручную
+  if (!VP || VP.ok || VP.fallback) return;
+  const b = $('#vbox'); if (!b) return;
+  VP.fallback = true; clearInterval(ytTimer);
+  b.innerHTML = `<p class="warn" style="margin:0 0 8px">Не удалось показать видео в окне. <a href="https://www.youtube.com/watch?v=${VP.id}" target="_blank" rel="noopener">Откройте его по ссылке</a>, посмотрите и поставьте отметку.</p>
+    <label style="display:flex;align-items:center"><input type="checkbox" id="w" onchange="$('#st').disabled=!this.checked"> Я посмотрел(а) лекцию и видео</label>`;
+}
+function vInit() {
+  VP = { id: ytId(LEC.video), maxT: vLoad(), dur: 0, last: null, player: null, fallback: false, pct: 0, ok: false, n: 0 };
+  clearInterval(ytTimer);
+  const fb = setTimeout(vFallback, 15000);
+  loadYT().then(() => {
+    VP.player = new YT.Player('ytp', { videoId: VP.id, width: '100%', height: '100%', playerVars: { rel: 0, playsinline: 1 },
+      events: { onReady: () => { clearTimeout(fb); ytTimer = setInterval(vTick, 500); vUpdate(); },
+                onError: () => { clearTimeout(fb); vFallback(); } } });
+  });
+}
+const vPayload = () => VP ? { videoPct: VP.pct, videoFallback: VP.fallback } : {};
+
+let LEC = null;
+async function open_(id) {
+  const r = await api('lecture', { id }); if (!r.ok) return alert(r.error);
+  LEC = r.lecture; VP = null;
+  const yt = ytId(LEC.video);
+  show(`<button class="s" onclick="home()">← Назад</button><div class="card"><h2>${esc(LEC.topic)}</h2>
+    <div class="lec">${esc(LEC.text)}</div>${yt ? '<div class="vid"><div id="ytp"></div></div>' : embed(LEC.video)}</div>
+    <div class="card">${yt
+      ? '<div id="vbox"><div id="vtxt" class="mut">Просмотрено: 0% (нужно не меньше 90%).</div><div style="height:10px;background:var(--ac2);border-radius:99px;margin:8px 0 12px;overflow:hidden"><div id="vbar" style="height:100%;width:0;background:var(--ok);transition:width .3s"></div></div></div>'
+      : '<label style="display:flex;align-items:center"><input type="checkbox" id="w" onchange="$(\'#st\').disabled=!this.checked"> Я посмотрел(а) лекцию и видео</label>'}
+    <button id="st" disabled onclick="test()">${LEC.questions.length ? 'Пройти тест (15 вопросов)' : 'Сохранить отметку о просмотре'}</button></div><div id="tst"></div>`);
+  if (yt) vInit();
+}
+async function test() {
+  if (!LEC.questions.length) {
+    const r = await api('submit', { lectureId: LEC.id, watched: true, answers: [], ...vPayload() });
+    $('#st').outerHTML = r.ok ? '<p>✅ Отметка о просмотре сохранена.</p><button onclick="home()">К списку тем</button>' : `<div class="err">${esc(r.error)}</div>`;
+    return;
+  }
+  $('#st').disabled = true; const w = $('#w'); if (w) w.disabled = true;
+  $('#tst').innerHTML = LEC.questions.map((q, i) => `<div class="card"><b>${i + 1}. ${esc(q.q)}</b>` +
+    q.o.map((o, k) => `<label class="opt" style="font-weight:400;font-size:16px"><input type="radio" name="a${i}" value="${k}">${esc(o)}</label>`).join('') + '</div>').join('') +
+    '<div class="err" id="err"></div><button id="go" onclick="submit_()">Отправить ответы</button>';
+  $('#tst').scrollIntoView();
+}
+async function submit_() {
+  const ans = LEC.questions.map((_, i) => { const c = document.querySelector(`input[name=a${i}]:checked`); return c ? +c.value : -1; });
+  if (ans.includes(-1) && !confirm('Есть вопросы без ответа. Отправить всё равно?')) return;
+  $('#go').disabled = true;
+  const r = await api('submit', { lectureId: LEC.id, watched: true, answers: ans, ...vPayload() });
+  if (!r.ok) { err(r.error); $('#go').disabled = false; return; }
+  LEC.questions.forEach((_, i) => document.querySelectorAll(`input[name=a${i}]`).forEach(inp => {
+    const k = +inp.value, box = inp.parentElement; inp.disabled = true;
+    if (k === r.correct[i]) box.classList.add('ok'); else if (k === ans[i]) box.classList.add('no');
+  }));
+  $('#go').remove(); $('#err').outerHTML = `<div class="card"><h2>Результат: ${r.score} из ${r.total}</h2><p class="mut">Ответ сохранён. Зелёным отмечены правильные ответы.</p><button onclick="home()">К списку тем</button></div>`;
+}
+
+window.addEventListener('hashchange', () => { if (!S) auth(isCuratorLink() ? 'reg' : 'login'); });
+S ? home() : auth(isCuratorLink() ? 'reg' : 'login');
+</script>
+</body>
+</html>
